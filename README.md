@@ -1,23 +1,9 @@
 <div align="center">
-  <img src="logo.png" alt="ADCCS Logo" width="150" />
+  <img src="C:\ADCCS Web\wwwroot\sherdilsLogo.png" alt="ADCCS Logo" width="150" />
 
   # 🛡️ Air Defence Command and Control System (ADCCS)
   
   **Advanced airspace monitoring, target detection, and defensive operations orchestration platform.**
-
-  [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
-  [![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET_Core-MVC-blue?style=flat-square)](https://docs.microsoft.com/en-us/aspnet/core/)
-  [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/index.html)
-  [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
-
-  <p align="center">
-    <a href="#overview">Overview</a> •
-    <a href="#key-features">Key Features</a> •
-    <a href="#technology-stack">Technology Stack</a> •
-    <a href="#system-architecture">Architecture</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#documentation">Documentation</a>
-  </p>
 </div>
 
 ---
