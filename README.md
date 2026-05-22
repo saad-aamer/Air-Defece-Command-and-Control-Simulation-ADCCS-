@@ -1,43 +1,96 @@
-# ADCCS (Air Defence Command and Control System)
+<div align="center">
+  <img src="logo.png" alt="ADCCS Logo" width="150" />
 
-![ADCCS Logo](logo.png)
+  # 🛡️ Air Defence Command and Control System (ADCCS)
+  
+  **Advanced airspace monitoring, target detection, and defensive operations orchestration platform.**
 
-## Overview
+  [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+  [![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET_Core-MVC-blue?style=flat-square)](https://docs.microsoft.com/en-us/aspnet/core/)
+  [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat-square&logo=sqlite)](https://sqlite.org/index.html)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
 
-The **Air Defence Command and Control System (ADCCS)** is a comprehensive web-based application designed to simulate the monitoring of airspace, detection of aerial targets, and the orchestration of defensive operations. Built using ASP.NET Core MVC, ADCCS offers a dynamic, real-time command center interface.
+  <p align="center">
+    <a href="#overview">Overview</a> •
+    <a href="#key-features">Key Features</a> •
+    <a href="#technology-stack">Technology Stack</a> •
+    <a href="#system-architecture">Architecture</a> •
+    <a href="#getting-started">Getting Started</a> •
+    <a href="#documentation">Documentation</a>
+  </p>
+</div>
 
-## Key Features
+---
 
-- **Real-Time Radar Display:** Interactive radar visualization for tracking stationary and dynamic targets, utilizing SignalR to provide immediate updates without page reloads.
-- **Defensive Asset Management:** Maintain and oversee an extensive registry of defensive assets, categorized into Aircraft, Missiles (SAMs/AAMs), and Drones/UAVs.
-- **Action Workflows:** Seamlessly issue and monitor defensive commands (e.g., Intercept, Destroy). The system tracks workflows from "In Progress" to "Completed."
-- **Automated Data Integrity:** Employs advanced SQLite database triggers to automate system state transitions. For example, marking a target as inactive instantly when a defensive action is completed, and automatically generating mission logs upon target detection or action issuance.
-- **Persistent Media Engine:** Continuous background audio playback that seamlessly persists across different pages and navigation using session state synchronization.
-- **Mission Logging:** Extensive tracking of events such as new target detections, action issuances, and overall operational logs.
+## 📖 Overview
 
-## Technology Stack
+The **Air Defence Command and Control System (ADCCS)** is a comprehensive, enterprise-grade web application engineered to simulate and manage critical aspects of modern air defense. Built on the robust ASP.NET Core MVC framework, ADCCS delivers a highly responsive, real-time command center interface. 
 
-- **Backend Framework:** .NET 10 (ASP.NET Core MVC)
-- **Database:** SQLite
-- **ORM:** Entity Framework Core
-- **Real-Time Communication:** SignalR
-- **Frontend:** Razor Pages, HTML5, Vanilla CSS3, JavaScript
-- **Authentication:** BCrypt.Net-Next
+It provides operators with situational awareness, defensive asset management capabilities, and automated tracking systems essential for rapid decision-making in high-stakes environments.
 
-## System Architecture
+---
 
-The application adheres to a strict Model-View-Controller (MVC) architectural pattern:
+## ✨ Key Features
 
-- **Models:** Define the data structures (Targets, Defensive Actions, Assets, Mission Logs) and Entity Framework data context.
-- **Views:** Razor templates constructed with a premium, dynamic user interface utilizing modern CSS for animations and visual effects.
-- **Controllers:** Handle HTTP requests, orchestrate application logic, and interact with the database context.
-- **Database Triggers:** Critical data consistency rules and automated logging are centralized within the SQLite schema (`AirDefence.db.sql`), ensuring absolute data integrity even outside the application context.
+- **📡 Real-Time Radar Visualization**
+  Interactive, highly dynamic radar interface for tracking both stationary and moving targets. Utilizes **SignalR** to push immediate telemetry and status updates to all connected clients without requiring page reloads.
 
-## Getting Started
+- **⚔️ Defensive Asset Management**
+  Maintain and oversee a comprehensive registry of defensive capabilities. Organize and deploy assets across various categories:
+  - 🛩️ Interceptor Aircraft
+  - 🚀 Surface-to-Air / Air-to-Air Missiles (SAMs/AAMs)
+  - 🚁 Unmanned Aerial Vehicles (UAVs / Drones)
+
+- **🎯 Action Workflows & Orchestration**
+  Seamlessly issue operational commands (e.g., *Intercept*, *Destroy*, *Observe*). The system meticulously tracks action workflows through states from initialization ("In Progress") to final resolution ("Completed").
+
+- **⚙️ Automated Data Integrity via Database Triggers**
+  Employs advanced SQLite database triggers (`AirDefence.db.sql`) to guarantee business logic enforcement at the data tier. Examples include:
+  - Instantly marking a target as inactive upon the successful completion of a defensive action.
+  - Auto-generating detailed mission logs the moment a new target is detected or an action is issued.
+
+- **🎵 Persistent Media & Audio Engine**
+  Features a continuous background audio engine that seamlessly persists playback state and timestamps across page navigations and reloads using synchronized session state, creating an immersive command center experience.
+
+- **📋 Comprehensive Mission Logging**
+  Extensive, immutable tracking of critical events, ensuring an auditable trail of new target detections, defensive actions taken, and operational state changes.
+
+---
+
+## 💻 Technology Stack
+
+ADCCS leverages a modern, reliable technology stack to ensure performance, security, and real-time capabilities:
+
+| Category | Technology |
+| :--- | :--- |
+| **Backend Framework** | .NET 10 (ASP.NET Core MVC) |
+| **Database** | SQLite (via `AirDefence.db`) |
+| **ORM** | Entity Framework Core |
+| **Real-Time Engine** | SignalR |
+| **Frontend** | Razor Pages, HTML5, Vanilla CSS3, JavaScript |
+| **Authentication** | BCrypt.Net-Next |
+
+---
+
+## 🏗️ System Architecture
+
+The application is strictly designed around the **Model-View-Controller (MVC)** pattern, ensuring clear separation of concerns and maintainability:
+
+1. **Models:** Define the core domain entities (`Targets`, `Defensive Actions`, `Assets`, `Mission Logs`) and structure the Entity Framework Core database context.
+2. **Views:** Premium Razor templates enriched with modern CSS3 animations, glassmorphism, and dynamic visual cues to provide an intuitive and reactive user interface.
+3. **Controllers:** Manage incoming HTTP requests, orchestrate business logic workflows, and handle interactions with the data context.
+4. **Database Tier:** Critical data consistency rules and automated logging are centralized directly within the SQLite schema via triggers, ensuring absolute data integrity independently of the application layer.
+
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to set up the project locally for development and testing.
 
 ### Prerequisites
 
-- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later.
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or higher.
+- A modern web browser (Chrome, Firefox, Edge, Safari).
 
 ### Installation & Execution
 
@@ -55,15 +108,26 @@ The application adheres to a strict Model-View-Controller (MVC) architectural pa
    ```bash
    dotnet run
    ```
-   *Note: The application automatically initializes, creates, and seeds the SQLite database (`AirDefence.db`) upon first startup if it does not already exist.*
+   *💡 Note: Upon the first startup, the application will automatically initialize, build the schema, and seed the SQLite database (`AirDefence.db`) if it is not already present.*
 
 4. **Access the application:**
-   Open your web browser and navigate to the local URL provided in the console output (typically `https://localhost:5001` or `http://localhost:5000`).
+   Open your preferred web browser and navigate to the local URL provided in the console output (typically `http://localhost:5000` or `https://localhost:5001`).
 
-## Project Documentation
+---
 
-Detailed project documentation, including architectural design, system capabilities, and workflow definitions, is available within the `ADCCS_Project_Report.docx` file included in the repository.
+## 📚 Project Documentation
 
-## License
+Detailed project documentation, including in-depth architectural design, system capability analysis, and comprehensive workflow definitions, is available within the repository:
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+📄 **[ADCCS_Project_Report.docx](./ADCCS_Project_Report.docx)**
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License**. See the `LICENSE` file for full details.
+
+---
+<div align="center">
+  <i>Developed for Advanced Agentic Coding Demonstration</i>
+</div>
