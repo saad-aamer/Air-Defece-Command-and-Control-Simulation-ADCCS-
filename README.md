@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="C:\ADCCS Web\wwwroot\sherdilsLogo.png" alt="ADCCS Logo" width="150" />
+
 
   # 🛡️ Air Defence Command and Control System (ADCCS)
   
