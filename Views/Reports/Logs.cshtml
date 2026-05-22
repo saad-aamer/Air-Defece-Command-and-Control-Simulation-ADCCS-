@@ -1,0 +1,194 @@
+@model List<ADCCS_Web.Models.MissionLog>
+@{
+    ViewData["Title"] = "Mission Logs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0">Mission Logs</h4>
+        <small class="text-muted">Complete log of all system events</small>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Event Type</label>
+                <select name="eventType" class="form-select">
+                    <option value="">All Events</option>
+                    @{
+                        var eventTypes = ViewBag.EventTypes as List<ADCCS_Web.Models.EventType> ?? new List<ADCCS_Web.Models.EventType>();
+                    }
+                    @foreach (var e in eventTypes)
+                    {
+                        <option value="@e.Name" selected="@(ViewBag.EventType == e.Name)">@e.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Severity</label>
+                <select name="severity" class="form-select">
+                    <option value="">All Severities</option>
+                    @{
+                        var severities = ViewBag.Severities as List<ADCCS_Web.Models.SeverityLevel> ?? new List<ADCCS_Web.Models.SeverityLevel>();
+                    }
+                    @foreach (var s in severities)
+                    {
+                        <option value="@s.Name" selected="@(ViewBag.Severity == s.Name)">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i> Filter
+                </button>
+                <a asp-action="Logs" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Event Type</th>
+                        <th>Description</th>
+                        <th>Severity</th>
+                        <th>User</th>
+                        <th>Target</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td><small class="text-muted">@log.LogId</small></td>
+                                <td>
+                                    <span class="badge bg-@(log.EventTypeNavigation?.Name == "Target Detected" ? "primary" :
+                                                                                                                            log.EventTypeNavigation?.Name == "Classification Changed" ? "info" :
+                                                                                                                            log.EventTypeNavigation?.Name == "Action Issued" ? "warning text-dark" :
+                                                                                                                            log.EventTypeNavigation?.Name == "System Alert" ? "danger" : "secondary")">
+                                        @log.EventTypeNavigation?.Name
+                                    </span>
+                                </td>
+                                <td>@log.Description</td>
+                                <td>
+                                    <span class="badge bg-@(log.SeverityNavigation?.Name == "Critical" ? "danger" : log.SeverityNavigation?.Name == "Warning" ? "warning text-dark" : "secondary")">
+                                        @log.SeverityNavigation?.Name
+                                    </span>
+                                </td>
+                                <td>@(log.User?.Username ?? "-")</td>
+                                <td>
+                                    @if (log.Target != null)
+                                    {
+                                        <a asp-controller="Targets" asp-action="Details" asp-route-id="@log.TargetId">
+                                            @log.Target.TargetCode
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td><small>@log.CreatedAt</small></td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-journal-x" style="font-size: 40px;"></i>
+                                <p class="mb-0 mt-2">No logs found</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination - MODIFIED FOR THEME -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="card-footer" style="background: #020202; border-top: 1px solid #111111; padding: 15px;">
+            <nav>
+                <ul class="pagination mb-0 justify-content-center">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Logs"
+                           asp-route-page="@(ViewBag.CurrentPage - 1)"
+                           asp-route-eventType="@ViewBag.EventType"
+                           asp-route-severity="@ViewBag.Severity"
+                           style="background: #0a0a0a; border: 1px solid #111111; color: #9bd9c6; padding: 8px 16px; margin: 0 2px;">
+                            Previous
+                        </a>
+                    </li>
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Logs"
+                               asp-route-page="@i"
+                               asp-route-eventType="@ViewBag.EventType"
+                               asp-route-severity="@ViewBag.Severity"
+                               style="background: @(i == ViewBag.CurrentPage ? "#34e6b8" : "#0a0a0a");
+                                              border: 1px solid @(i == ViewBag.CurrentPage ? "#34e6b8" : "#111111");
+                                              color: @(i == ViewBag.CurrentPage ? "#020202" : "#9bd9c6");
+                                              padding: 8px 12px;
+                                              margin: 0 2px;
+                                              font-weight: @(i == ViewBag.CurrentPage ? "600" : "400");">
+                                @i
+                            </a>
+                        </li>
+                    }
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link"
+                           asp-action="Logs"
+                           asp-route-page="@(ViewBag.CurrentPage + 1)"
+                           asp-route-eventType="@ViewBag.EventType"
+                           asp-route-severity="@ViewBag.Severity"
+                           style="background: #0a0a0a; border: 1px solid #111111; color: #9bd9c6; padding: 8px 16px; margin: 0 2px;">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>
+
+<style>
+    /* Pagination hover effects */
+    .page-link:hover {
+        background: rgba(52, 230, 184, 0.1) !important;
+        border-color: #34e6b8 !important;
+        color: #cffef3 !important;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .page-item.disabled .page-link {
+        background: #050505 !important;
+        border-color: #111111 !important;
+        color: #376a5b !important;
+        cursor: not-allowed;
+    }
+
+        .page-item.disabled .page-link:hover {
+            background: #050505 !important;
+            border-color: #111111 !important;
+            color: #376a5b !important;
+            transform: none;
+        }
+</style>

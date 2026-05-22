@@ -1,0 +1,126 @@
+@model List<ADCCS_Web.Models.DefensiveAction>
+@{
+    ViewData["Title"] = "Defensive Actions";
+    var actionStatuses = ViewBag.ActionStatuses as List<ADCCS_Web.Models.ActionStatus> ?? new List<ADCCS_Web.Models.ActionStatus>();
+    var completedId = actionStatuses.FirstOrDefault(s => s.Name == "Completed")?.StatusId ?? 2;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0">Defensive Actions</h4>
+        <small class="text-muted">Manage all issued defensive actions</small>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Issue New Action
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select name="statusId" class="form-select">
+                    <option value="">All Statuses</option>
+                    @foreach (var s in actionStatuses)
+                    {
+                        <option value="@s.StatusId" selected="@(ViewBag.StatusId == s.StatusId)">@s.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Action Type</label>
+                <select name="actionTypeId" class="form-select">
+                    <option value="">All Types</option>
+                    @{
+                        var actionTypes = ViewBag.ActionTypes as List<ADCCS_Web.Models.ActionType> ?? new List<ADCCS_Web.Models.ActionType>();
+                    }
+                    @foreach (var t in actionTypes)
+                    {
+                        <option value="@t.ActionTypeId" selected="@(ViewBag.ActionTypeId == t.ActionTypeId)">@t.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i> Filter
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Actions Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Target</th>
+                        <th>Action Type</th>
+                        <th>Status</th>
+                        <th>Issued By</th>
+                        <th>Issued At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var action in Model)
+                        {
+                            <tr>
+                                <td><strong>#@action.ActionId</strong></td>
+                                <td>
+                                    <a asp-controller="Targets" asp-action="Details" asp-route-id="@action.TargetId">
+                                        @action.Target?.TargetCode
+                                    </a>
+                                </td>
+                                <td>
+                                    <i class="bi bi-@(action.ActionTypeNavigation?.Name == "Scramble Jet" ? "airplane" : action.ActionTypeNavigation?.Name == "Launch SAM" ? "rocket" : "eye") me-1"></i>
+                                    @action.ActionTypeNavigation?.Name
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(action.StatusNavigation?.Name == "Completed" ? "success" : action.StatusNavigation?.Name == "Pending" ? "warning text-dark" : "danger")">
+                                        @action.StatusNavigation?.Name
+                                    </span>
+                                </td>
+                                <td>@action.IssuedByNavigation?.Username</td>
+                                <td>@action.IssuedAt</td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@action.ActionId" class="btn btn-sm btn-outline-info" title="Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    @if (action.StatusNavigation?.Name == "Pending")
+                                    {
+                                        <form asp-action="UpdateStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@action.ActionId" />
+                                            <input type="hidden" name="statusName" value="Completed" />
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Complete">
+                                                <i class="bi bi-check"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 40px;"></i>
+                                <p class="mb-0 mt-2">No actions found</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

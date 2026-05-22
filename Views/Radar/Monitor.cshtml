@@ -1,0 +1,572 @@
+@model ADCCS_Web.Models.ViewModels.RadarViewModel
+@{
+    ViewData["Title"] = "Radar Monitor";
+}
+
+<div class="row g-4">
+    <!-- Radar Display -->
+    <div class="col-lg-8">
+        <div class="radar-container" style="padding: 15px; display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 600px; height: 600px; position: relative; margin: 0 auto;">
+                <canvas id="radarCanvas" width="600" height="600" style="display: block;"></canvas>
+            </div>
+            
+            <!-- Legend -->
+            <div class="mt-3 text-center" style="margin-top: 20px !important;">
+                <span class="legend-item" style="margin: 0 15px; display: inline-block;">
+                    <span class="legend-dot" style="background: #ff4757; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Hostile
+                </span>
+                <span class="legend-item" style="margin: 0 15px; display: inline-block;">
+                    <span class="legend-dot" style="background: #00ff00; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Friendly
+                </span>
+                <span class="legend-item" style="margin: 0 15px; display: inline-block;">
+                    <span class="legend-dot" style="background: #1e90ff; width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px;"></span> Unknown
+                </span>
+            </div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar" style="margin-top: 15px; padding: 8px 15px; background: #0a0a0a; border: 1px solid #111111; border-radius: 6px; font-size: 12px; color: #cffef3; font-family: 'Share Tech Mono', monospace;">
+                <span id="radarStatus">RADAR ONLINE</span> | 
+                Range: <span id="radarRange">@(Model.Configuration?.RadarRange ?? 500) km</span> |
+                Targets: <span id="targetCount">@Model.ActiveTargets.Count</span> |
+                Scan Interval: <span id="scanInterval">@(Model.Configuration?.ScanInterval ?? 2000) ms</span>
+            </div>
+            
+            <!-- Controls -->
+            <div class="radar-controls" style="margin-top: 20px;">
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <button class="btn btn-success" id="btnGenerateTarget" style="font-size: 11px; padding: 6px 12px;">
+                        <i class="bi bi-plus-circle me-1"></i> Generate Target
+                    </button>
+                    <button class="btn btn-info" id="btnRefresh" style="font-size: 11px; padding: 6px 12px;">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                    </button>
+                    <button class="btn btn-warning" id="btnToggleScan" style="font-size: 11px; padding: 6px 12px;">
+                        <i class="bi bi-pause me-1"></i> Pause Scan
+                    </button>
+                    <button class="btn btn-danger" id="btnClearAll" style="font-size: 11px; padding: 6px 12px;">
+                        <i class="bi bi-trash me-1"></i> Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Target List Panel -->
+    <div class="col-lg-4">
+        <div class="card target-info-panel shadow-sm" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-list-ul me-2"></i>Active Targets
+                </h5>
+            </div>
+            <div class="card-body p-0" id="targetList" style="max-height: 400px; overflow-y: auto;">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Selected Target Details -->
+        <div class="card shadow-sm mt-3" id="targetDetails" style="display: none; background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-info-circle me-2"></i>Target Details
+                </h5>
+            </div>
+            <div class="card-body" style="padding: 15px;">
+                <table class="table table-sm" style="background: transparent; color: #cffef3; border-color: #111111;">
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Code:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailCode">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Type:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailType">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Classification:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailClassification">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Position:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailPosition">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Speed:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailSpeed">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Altitude:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailAltitude">-</td></tr>
+                    <tr><th style="color: #9bd9c6; border-color: #111111; padding: 6px 8px;">Heading:</th><td style="border-color: #111111; padding: 6px 8px;" id="detailHeading">-</td></tr>
+                </table>
+                
+                <!-- Classification Buttons -->
+                <div class="mt-3">
+                    <label class="form-label fw-semibold" style="color: #9bd9c6; font-size: 12px;">Reclassify Target:</label>
+                    <div class="btn-group w-100">
+                        <button class="btn btn-outline-success btn-classify" data-class="Friendly" style="border-color: #00ff00; color: #00ff00; font-size: 11px; padding: 5px 10px;">Friendly</button>
+                        <button class="btn btn-outline-danger btn-classify" data-class="Hostile" style="border-color: #ff4757; color: #ff4757; font-size: 11px; padding: 5px 10px;">Hostile</button>
+                        <button class="btn btn-outline-warning btn-classify" data-class="Unknown" style="border-color: #1e90ff; color: #1e90ff; font-size: 11px; padding: 5px 10px;">Unknown</button>
+                    </div>
+                </div>
+
+                @if (Model.UserRole == "Commander" || Model.UserRole == "Admin")
+                {
+                    <!-- Action Buttons (Commander Only) -->
+                    <div class="mt-3">
+                        <label class="form-label fw-semibold" style="color: #9bd9c6; font-size: 12px;">Issue Action:</label>
+                        <div class="d-grid gap-2">
+                            <a href="#" id="btnIssueActionLink" class="btn btn-warning" style="background: rgba(255, 193, 7, 0.1); border-color: #ffc107; color: #ffc107; font-size: 11px; padding: 6px 12px;">
+                                <i class="bi bi-lightning me-1"></i> Issue Defensive Action
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Configuration
+        const config = {
+            radarRange: @(Model.Configuration?.RadarRange ?? 500),
+            scanInterval: @(Model.Configuration?.ScanInterval ?? 2000),
+            userRole: '@Model.UserRole'
+        };
+
+        // Canvas Setup
+        const canvas = document.getElementById('radarCanvas');
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const maxRadius = Math.min(centerX, centerY) - 20;
+
+        // State
+        let targets = @Html.Raw(Json.Serialize(Model.ActiveTargets.Select(t => new {
+            targetId = t.TargetId,
+            targetCode = t.TargetCode,
+            targetType = t.TargetTypeNavigation?.Name,
+            classification = t.ClassificationNavigation?.Name,
+            positionX = t.PositionX,
+            positionY = t.PositionY,
+            speed = t.Speed,
+            altitude = t.Altitude,
+            heading = t.Heading
+        })));
+        
+        let selectedTarget = null;
+        let scanAngle = 0;
+        let isScanning = true;
+        let animationId = null;
+        let lastFrameTime = Date.now();
+
+        // Draw Radar
+        function drawRadar() {
+            // Update targets based on dt
+            const now = Date.now();
+            const dt = (now - lastFrameTime) / 1000.0;
+            lastFrameTime = now;
+
+            if (isScanning) {
+                targets.forEach(target => {
+                    const headingRad = target.heading * Math.PI / 180.0;
+                    const visualSpeedMultiplier = 50.0; // Boost visual speed
+                    const moveDistance = (target.speed / 3600.0) * dt * visualSpeedMultiplier;
+                    target.positionX += Math.cos(headingRad) * moveDistance;
+                    target.positionY += Math.sin(headingRad) * moveDistance;
+
+                    const distance = Math.sqrt(target.positionX ** 2 + target.positionY ** 2);
+                    if (distance > config.radarRange) {
+                        target.heading = (target.heading + 180) % 360;
+                        const ratio = (config.radarRange - 2) / distance;
+                        target.positionX *= ratio;
+                        target.positionY *= ratio;
+                    }
+                });
+            }
+
+            // Clear canvas with BLACK background
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw range circles - THIN LINES with ORIGINAL COLOR
+            ctx.strokeStyle = '#1a4a1a'; // Original dark green
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 5; i++) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, (maxRadius / 5) * i, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw cross lines - THIN LINES with ORIGINAL COLOR
+            ctx.strokeStyle = '#1a1a1a'; // Original dark gray
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.stroke();
+
+            // INCREASED GLOWING SWEEP EFFECT with ORIGINAL BRIGHT GREEN
+            if (isScanning) {
+                // Major glow behind sweep area
+                const gradient = ctx.createRadialGradient(
+                    centerX, centerY, 0,
+                    centerX, centerY, maxRadius
+                );
+                gradient.addColorStop(0, 'rgba(0, 255, 0, 0.25)'); // Increased opacity
+                gradient.addColorStop(0.7, 'rgba(0, 255, 0, 0.15)'); // Increased opacity
+                gradient.addColorStop(1, 'rgba(0, 255, 0, 0)');
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, maxRadius, scanAngle - 0.7, scanAngle, false); // Wider sweep
+                ctx.lineTo(centerX, centerY);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Multiple trail effects for stronger glow
+                for (let i = 5; i >= 1; i--) {
+                    const trailAngle = scanAngle - (i * 0.05);
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(
+                        centerX + Math.cos(trailAngle) * maxRadius, 
+                        centerY + Math.sin(trailAngle) * maxRadius
+                    );
+                    ctx.strokeStyle = `rgba(0, 255, 0, ${0.5 - (i * 0.08)})`; // Stronger trail
+                    ctx.lineWidth = 3; // Thicker trail
+                    ctx.stroke();
+                }
+
+                // Main bright sweep line - ORIGINAL BRIGHT GREEN
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + Math.cos(scanAngle) * maxRadius, centerY + Math.sin(scanAngle) * maxRadius);
+                ctx.strokeStyle = '#00ff00'; // ORIGINAL BRIGHT GREEN
+                ctx.lineWidth = 3; // Thicker line
+                ctx.stroke();
+
+                // Glowing dot at end of sweep line with multiple layers
+                for (let i = 3; i >= 1; i--) {
+                    const dotSize = i * 3;
+                    ctx.beginPath();
+                    ctx.arc(
+                        centerX + Math.cos(scanAngle) * maxRadius,
+                        centerY + Math.sin(scanAngle) * maxRadius,
+                        dotSize, 0, Math.PI * 2
+                    );
+                    ctx.fillStyle = `rgba(0, 255, 0, ${0.8 - (i * 0.2)})`;
+                    ctx.fill();
+                }
+
+                // Additional radial glow around sweep end
+                ctx.beginPath();
+                ctx.arc(
+                    centerX + Math.cos(scanAngle) * maxRadius,
+                    centerY + Math.sin(scanAngle) * maxRadius,
+                    15, 0, Math.PI * 2
+                );
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+                ctx.fill();
+            }
+
+            // Draw targets
+            targets.forEach(target => drawTarget(target));
+
+            // Draw center point with INCREASED GLOW
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#00ff00'; // ORIGINAL BRIGHT GREEN
+            ctx.fill();
+            
+            // Center point glow layers
+            for (let i = 2; i >= 1; i--) {
+                const glowSize = 5 + (i * 5);
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, glowSize, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 255, 0, ${0.3 - (i * 0.1)})`;
+                ctx.fill();
+            }
+
+            // Update scan angle
+            if (isScanning) {
+                scanAngle += 0.03;
+                if (scanAngle > Math.PI * 2) scanAngle = 0;
+            }
+
+            animationId = requestAnimationFrame(drawRadar);
+        }
+
+        function drawTarget(target) {
+            const scale = maxRadius / config.radarRange;
+            const x = centerX + target.positionX * scale;
+            const y = centerY - target.positionY * scale;
+
+            const distance = Math.sqrt(target.positionX ** 2 + target.positionY ** 2);
+            if (distance > config.radarRange) return;
+
+            let color, innerColor, glowColor;
+            switch (target.classification) {
+                case 'Hostile': 
+                    color = '#ff4757'; // Red
+                    innerColor = '#ff6b81'; // Lighter red
+                    glowColor = 'rgba(255, 71, 87, 0.4)'; // Stronger glow
+                    break;
+                case 'Friendly': 
+                    color = '#00ff00'; // ORIGINAL BRIGHT GREEN
+                    innerColor = '#90ee90'; // Lighter green
+                    glowColor = 'rgba(0, 255, 0, 0.4)'; // Stronger glow
+                    break;
+                default: 
+                    color = '#1e90ff'; // Blue
+                    innerColor = '#63a4ff'; // Lighter blue
+                    glowColor = 'rgba(30, 144, 255, 0.4)'; // Stronger glow
+            }
+
+            // Draw motion trail
+            const trailLength = (target.speed / 100.0) * scale; // Dynamic trail length based on speed
+            const reverseHeadingRad = (target.heading + 180) * Math.PI / 180.0;
+            const trailEndX = x + Math.cos(reverseHeadingRad) * trailLength;
+            const trailEndY = y - Math.sin(reverseHeadingRad) * trailLength;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(trailEndX, trailEndY);
+            
+            const trailGradient = ctx.createLinearGradient(x, y, trailEndX, trailEndY);
+            trailGradient.addColorStop(0, glowColor);
+            trailGradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            ctx.strokeStyle = trailGradient;
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            // Draw glow around target - INCREASED
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fillStyle = glowColor;
+            ctx.fill();
+
+            // Draw target
+            ctx.beginPath();
+            ctx.arc(x, y, 9, 0, Math.PI * 2); // Slightly larger
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            // Inner dot
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = innerColor;
+            ctx.fill();
+
+            // Highlight selected target with stronger effect
+            if (selectedTarget && selectedTarget.targetId === target.targetId) {
+                // Update detail position in UI if it's the selected target
+                const detailPosEl = document.getElementById('detailPosition');
+                if (detailPosEl) {
+                    detailPosEl.textContent = `X: ${target.positionX.toFixed(1)}, Y: ${target.positionY.toFixed(1)}`;
+                }
+
+                ctx.beginPath();
+                ctx.arc(x, y, 20, 0, Math.PI * 2);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // Pulsing effect for selected target
+                const pulseSize = 18 + Math.sin(Date.now() * 0.005) * 6;
+                ctx.beginPath();
+                ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Additional outer glow for selected
+                ctx.beginPath();
+                ctx.arc(x, y, 25, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.fill();
+            }
+
+            // CLEAR TARGET ID DISPLAY with improved visibility
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 13px monospace';
+            ctx.shadowColor = '#000000';
+            ctx.shadowBlur = 4;
+            
+            // Draw background for better readability
+            const textWidth = ctx.measureText(target.targetCode).width;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'; // Darker background
+            ctx.fillRect(x + 16, y - 12, textWidth + 6, 18); // Larger background
+            
+            // Draw target code
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(target.targetCode, x + 19, y + 3);
+            ctx.shadowBlur = 0;
+
+            // Draw heading indicator with glow
+            const headingRad = (target.heading - 90) * Math.PI / 180;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + Math.cos(headingRad) * 22, y + Math.sin(headingRad) * 22);
+            ctx.strokeStyle = innerColor;
+            ctx.lineWidth = 3; // Thicker
+            ctx.stroke();
+            
+            // Arrow head with glow
+            ctx.beginPath();
+            ctx.moveTo(x + Math.cos(headingRad) * 22, y + Math.sin(headingRad) * 22);
+            ctx.lineTo(x + Math.cos(headingRad - Math.PI/6) * 16, y + Math.sin(headingRad - Math.PI/6) * 16);
+            ctx.lineTo(x + Math.cos(headingRad + Math.PI/6) * 16, y + Math.sin(headingRad + Math.PI/6) * 16);
+            ctx.closePath();
+            ctx.fillStyle = innerColor;
+            ctx.fill();
+            
+            // Arrow head glow
+            ctx.beginPath();
+            ctx.arc(x + Math.cos(headingRad) * 22, y + Math.sin(headingRad) * 22, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fill();
+        }
+
+        function updateTargetList() {
+            const listContainer = document.getElementById('targetList');
+            listContainer.innerHTML = '';
+
+            if (targets.length === 0) {
+                listContainer.innerHTML = '<div class="text-center text-muted py-4" style="color: #376a5b; padding: 20px;">No active targets</div>';
+                return;
+            }
+
+            targets.forEach(target => {
+                const item = document.createElement('div');
+                item.className = 'target-item';
+                item.style.cssText = 'padding: 10px 15px; border-bottom: 1px solid #111111; cursor: pointer; transition: background 0.2s;';
+                item.onmouseenter = () => item.style.background = '#0f0f0f';
+                item.onmouseleave = () => item.style.background = '';
+                
+                let badgeColor, badgeBg;
+                switch(target.classification) {
+                    case 'Hostile':
+                        badgeColor = '#ff4757';
+                        badgeBg = 'rgba(255, 71, 87, 0.1)';
+                        break;
+                    case 'Friendly':
+                        badgeColor = '#00ff00'; // Original bright green
+                        badgeBg = 'rgba(0, 255, 0, 0.1)';
+                        break;
+                    default:
+                        badgeColor = '#1e90ff';
+                        badgeBg = 'rgba(30, 144, 255, 0.1)';
+                }
+                
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong style="color: #cffef3; font-size: 13px;">${target.targetCode}</strong>
+                            <small style="color: #9bd9c6; font-size: 11px; display: block;">${target.targetType}</small>
+                        </div>
+                        <span style="color: ${badgeColor}; background: ${badgeBg}; border: 1px solid ${badgeColor}; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">
+                            ${target.classification}
+                        </span>
+                    </div>
+                `;
+                item.onclick = () => selectTarget(target);
+                listContainer.appendChild(item);
+            });
+
+            document.getElementById('targetCount').textContent = targets.length;
+        }
+
+        function selectTarget(target) {
+            selectedTarget = target;
+            document.getElementById('targetDetails').style.display = 'block';
+            document.getElementById('detailCode').textContent = target.targetCode;
+            document.getElementById('detailType').textContent = target.targetType;
+            
+            let badgeColor, badgeBg;
+            switch(target.classification) {
+                case 'Hostile':
+                    badgeColor = '#ff4757';
+                    badgeBg = 'rgba(255, 71, 87, 0.1)';
+                    break;
+                case 'Friendly':
+                    badgeColor = '#00ff00';
+                    badgeBg = 'rgba(0, 255, 0, 0.1)';
+                    break;
+                default:
+                    badgeColor = '#1e90ff';
+                    badgeBg = 'rgba(30, 144, 255, 0.1)';
+            }
+            
+            document.getElementById('detailClassification').innerHTML = `
+                <span style="color: ${badgeColor}; background: ${badgeBg}; border: 1px solid ${badgeColor}; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                    ${target.classification}
+                </span>`;
+            document.getElementById('detailPosition').textContent = `X: ${target.positionX.toFixed(1)}, Y: ${target.positionY.toFixed(1)}`;
+            document.getElementById('detailSpeed').textContent = `${target.speed} km/h`;
+            document.getElementById('detailAltitude').textContent = `${target.altitude} ft`;
+            document.getElementById('detailHeading').textContent = `${target.heading}°`;
+            
+            const issueActionLink = document.getElementById('btnIssueActionLink');
+            if (issueActionLink) {
+                issueActionLink.href = `/Actions/Create?targetId=${target.targetId}`;
+            }
+        }
+
+        async function refreshTargets() {
+            try {
+                const response = await fetch('/Radar/GetTargets');
+                targets = await response.json();
+                updateTargetList();
+            } catch (error) {
+                console.error('Error fetching targets:', error);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('btnGenerateTarget').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/Radar/GenerateTarget', { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    targets.push(data.target);
+                    updateTargetList();
+                }
+            } catch (error) {
+                console.error('Error generating target:', error);
+            }
+        });
+
+        document.querySelectorAll('.btn-classify').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!selectedTarget) return;
+                const classification = btn.dataset.class;
+                try {
+                    const response = await fetch(`/Radar/ClassifyTarget?targetId=${selectedTarget.targetId}&classification=${classification}`, { method: 'POST' });
+                    const data = await response.json();
+                    if (data.success) {
+                        selectedTarget.classification = classification;
+                        const idx = targets.findIndex(t => t.targetId === selectedTarget.targetId);
+                        if (idx >= 0) targets[idx].classification = classification;
+                        selectTarget(selectedTarget);
+                        updateTargetList();
+                    }
+                } catch (error) {
+                    console.error('Error classifying target:', error);
+                }
+            });
+        });
+
+        document.getElementById('btnToggleScan').addEventListener('click', function() {
+            isScanning = !isScanning;
+            this.innerHTML = isScanning ? '<i class="bi bi-pause me-1"></i> Pause Scan' : '<i class="bi bi-play me-1"></i> Resume Scan';
+            document.getElementById('radarStatus').textContent = isScanning ? 'RADAR ONLINE' : 'RADAR PAUSED';
+        });
+
+        document.getElementById('btnRefresh').addEventListener('click', refreshTargets);
+
+        document.getElementById('btnClearAll').addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to clear all targets?')) return;
+            for (const target of targets) {
+                await fetch(`/Radar/RemoveTarget?targetId=${target.targetId}`, { method: 'POST' });
+            }
+            targets = [];
+            selectedTarget = null;
+            document.getElementById('targetDetails').style.display = 'none';
+            updateTargetList();
+        });
+
+        // Initialize
+        updateTargetList();
+        drawRadar();
+        setInterval(refreshTargets, 10000);
+    </script>
+}

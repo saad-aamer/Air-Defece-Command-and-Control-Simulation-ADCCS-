@@ -1,0 +1,341 @@
+@model ADCCS_Web.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card info" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Active Targets</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.ActiveTargets</h2>
+                </div>
+                <div class="icon" style="color: #1e90ff; font-size: 32px;"><i class="bi bi-crosshair"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card hostile" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Hostile Targets</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.HostileTargets</h2>
+                </div>
+                <div class="icon" style="color: #ff4757; font-size: 32px;"><i class="bi bi-exclamation-triangle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card friendly" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Friendly Targets</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.FriendlyTargets</h2>
+                </div>
+                <div class="icon" style="color: #34e6b8; font-size: 32px;"><i class="bi bi-check-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card unknown" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Unknown Targets</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.UnknownTargets</h2>
+                </div>
+                <div class="icon" style="color: #1e90ff; font-size: 32px;"><i class="bi bi-question-circle"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card info" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Pending Actions</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.PendingActions</h2>
+                </div>
+                <div class="icon" style="color: #ffa502; font-size: 32px;"><i class="bi bi-lightning"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card friendly" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Completed Actions</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.CompletedActions</h2>
+                </div>
+                <div class="icon" style="color: #34e6b8; font-size: 32px;"><i class="bi bi-check2-all"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card hostile" style="background: #0a0a0a; border: 1px solid #111111; border-radius: 8px; padding: 18px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1" style="color: #9bd9c6; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Active Alerts</h6>
+                    <h2 class="mb-0" style="color: #cffef3; font-size: 26px; font-family: 'Share Tech Mono', monospace; font-weight: 700;">@Model.ActiveAlerts</h2>
+                </div>
+                <div class="icon" style="color: #34e6b8; font-size: 32px;"><i class="bi bi-bell"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Targets -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-crosshair me-2"></i>Recent Targets
+                </h5>
+                <a asp-controller="Targets" asp-action="Index" class="btn btn-sm btn-outline-primary" style="border-color: #34e6b8; color: #34e6b8; font-size: 11px; padding: 3px 10px;">
+                    View All
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background: #020202; border-bottom: 1px solid #111111;">
+                            <tr>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Code</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Type</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Classification</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Speed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentTargets.Any())
+                            {
+                                @foreach (var target in Model.RecentTargets)
+                                {
+                                    <tr style="border-bottom: 1px solid #111111;">
+                                        <td style="color: #cffef3; padding: 10px 12px; font-weight: 600;">@target.TargetCode</td>
+                                        <td style="color: #9bd9c6; padding: 10px 12px;">@target.TargetTypeNavigation?.Name</td>
+                                        <td style="padding: 10px 12px;">
+                                            @{
+                                                string badgeColor = target.ClassificationNavigation?.Name == "Hostile" ? "#ff4757" :
+                                                target.ClassificationNavigation?.Name == "Friendly" ? "#34e6b8" : "#1e90ff";
+                                                string badgeBg = target.ClassificationNavigation?.Name == "Hostile" ? "rgba(255, 71, 87, 0.1)" :
+                                                target.ClassificationNavigation?.Name == "Friendly" ? "rgba(52, 230, 184, 0.1)" : "rgba(30, 144, 255, 0.1)";
+                                            }
+                                            <span style="color: @badgeColor; background: @badgeBg; border: 1px solid @badgeColor; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">
+                                                @target.ClassificationNavigation?.Name
+                                            </span>
+                                        </td>
+                                        <td style="color: #9bd9c6; padding: 10px 12px; font-family: 'Share Tech Mono', monospace;">@target.Speed km/h</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" style="text-align: center; color: #376a5b; padding: 20px;">No targets detected</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Alerts -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-bell me-2"></i>Active Alerts
+                </h5>
+                <span style="background: #0a0a0a; color: white; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">
+                    @Model.ActiveAlerts
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (Model.ActiveThreatAlerts.Any())
+                    {
+                        @foreach (var alert in Model.ActiveThreatAlerts)
+                        {
+                            <div class="list-group-item" style="background: #0a0a0a; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        @{
+                                            string alertBadgeColor = alert.AlertLevelNavigation?.Name == "Critical" ? "#ff4757" :
+                                            alert.AlertLevelNavigation?.Name == "High" ? "#ffa502" : "#1e90ff";
+                                            string alertBadgeBg = alert.AlertLevelNavigation?.Name == "Critical" ? "rgba(255, 71, 87, 0.1)" :
+                                            alert.AlertLevelNavigation?.Name == "High" ? "rgba(255, 165, 2, 0.1)" : "rgba(30, 144, 255, 0.1)";
+                                        }
+                                        <span style="color: @alertBadgeColor; background: @alertBadgeBg; border: 1px solid @alertBadgeColor; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-right: 8px;">
+                                            @alert.AlertLevelNavigation?.Name
+                                        </span>
+                                        <small style="color: #9bd9c6;">@alert.Target?.TargetCode</small>
+                                    </div>
+                                    <small style="color: #376a5b;">@alert.CreatedAt</small>
+                                </div>
+                                <p class="mb-0 small mt-1" style="color: #cffef3;">@alert.Message</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="list-group-item text-center" style="background: #0a0a0a; padding: 30px 15px;">
+                            <i class="bi bi-check-circle" style="color: #34e6b8; font-size: 30px;"></i>
+                            <p class="mb-0 mt-2" style="color: #9bd9c6;">No active alerts</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <div class="card shadow-sm" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-pie-chart me-2"></i>Targets by Classification
+                </h5>
+            </div>
+            <div class="card-body" style="padding: 20px;">
+                <canvas id="classificationChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111; padding: 12px 15px;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-bar-chart me-2"></i>Recent Actions
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead style="background: #020202; border-bottom: 1px solid #111111;">
+                            <tr>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Target</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Action</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">Status</th>
+                                <th style="color: #cffef3; padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;">By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentActions.Any())
+                            {
+                                @foreach (var action in Model.RecentActions)
+                                {
+                                    <tr style="border-bottom: 1px solid #111111;">
+                                        <td style="color: #cffef3; padding: 10px 12px;">@action.Target?.TargetCode</td>
+                                        <td style="color: #9bd9c6; padding: 10px 12px;">@action.ActionTypeNavigation?.Name</td>
+                                        <td style="padding: 10px 12px;">
+                                            @{
+                                                string statusColor = action.StatusNavigation?.Name == "Completed" ? "#34e6b8" :
+                                                action.StatusNavigation?.Name == "Pending" ? "#ffa502" :
+                                                action.StatusNavigation?.Name == "In Progress" ? "#1e90ff" : "#9bd9c6";
+                                                string statusBg = action.StatusNavigation?.Name == "Completed" ? "rgba(52, 230, 184, 0.1)" :
+                                                action.StatusNavigation?.Name == "Pending" ? "rgba(255, 165, 2, 0.1)" :
+                                                action.StatusNavigation?.Name == "In Progress" ? "rgba(30, 144, 255, 0.1)" : "rgba(155, 217, 198, 0.1)";
+                                            }
+                                            <span style="color: @statusColor; background: @statusBg; border: 1px solid @statusColor; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 600;">
+                                                @action.StatusNavigation?.Name
+                                            </span>
+                                        </td>
+                                        <td style="color: #9bd9c6; padding: 10px 12px;">@action.IssuedByNavigation?.Username</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" style="text-align: center; color: #376a5b; padding: 20px;">No actions recorded</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Theme colors
+        const themeColors = {
+            primary: '#34e6b8',     // Emerald green
+            danger: '#ff4757',      // Red
+            info: '#1e90ff',        // Blue
+            warning: '#ffa502',     // Orange
+            light: '#cffef3',
+            secondary: '#9bd9c6',
+            dark: '#111111'
+        };
+
+        // Classification Pie Chart with theme colors
+        const ctx = document.getElementById('classificationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Hostile', 'Friendly', 'Unknown'],
+                datasets: [{
+                    data: [@Model.HostileTargets, @Model.FriendlyTargets, @Model.UnknownTargets],
+                    backgroundColor: [
+                        themeColors.danger,    // Hostile - Red
+                        themeColors.primary,   // Friendly - Emerald green
+                        themeColors.info       // Unknown - Blue
+                    ],
+                    borderColor: themeColors.dark,
+                    borderWidth: 1,
+                    hoverBorderColor: themeColors.light,
+                    hoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: themeColors.light,
+                            font: {
+                                size: 11,
+                                family: "'Orbitron', sans-serif"
+                            },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#020202',
+                        titleColor: themeColors.light,
+                        bodyColor: themeColors.secondary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1,
+                        titleFont: {
+                            family: "'Orbitron', sans-serif",
+                            size: 12
+                        },
+                        bodyFont: {
+                            family: "'Share Tech Mono', monospace",
+                            size: 11
+                        }
+                    }
+                },
+                cutout: '65%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+        // Set canvas background to black
+        document.getElementById('classificationChart').style.backgroundColor = '#000000';
+    </script>
+}

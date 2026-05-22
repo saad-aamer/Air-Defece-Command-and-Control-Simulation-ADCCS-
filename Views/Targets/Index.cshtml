@@ -1,0 +1,135 @@
+@model List<ADCCS_Web.Models.Target>
+@{
+    ViewData["Title"] = "Targets";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0">Target Management</h4>
+        <small class="text-muted">Monitor and manage all detected targets</small>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add Target
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" name="searchString" class="form-control" placeholder="Target code..." value="@ViewBag.SearchString" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Classification</label>
+                <select name="classificationId" class="form-select">
+                    <option value="">All</option>
+                    @{
+                        var classifications = ViewBag.Classifications as List<ADCCS_Web.Models.Classification> ?? new List<ADCCS_Web.Models.Classification>();
+                    }
+                    @foreach (var c in classifications)
+                    {
+                        <option value="@c.ClassificationId" selected="@(ViewBag.ClassificationId == c.ClassificationId)">@c.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Type</label>
+                <select name="targetTypeId" class="form-select">
+                    <option value="">All</option>
+                    @{
+                        var targetTypes = ViewBag.TargetTypes as List<ADCCS_Web.Models.TargetType> ?? new List<ADCCS_Web.Models.TargetType>();
+                    }
+                    @foreach (var t in targetTypes)
+                    {
+                        <option value="@t.TargetTypeId" selected="@(ViewBag.TargetTypeId == t.TargetTypeId)">@t.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Status</label>
+                <div class="form-check mt-2">
+                    <input type="checkbox" name="activeOnly" value="true" class="form-check-input" id="activeOnly" @(ViewBag.ActiveOnly == true ? "checked" : "") />
+                    <label class="form-check-label" for="activeOnly">Active Only</label>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i> Filter
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Targets Table -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Classification</th>
+                        <th>Position</th>
+                        <th>Speed</th>
+                        <th>Altitude</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                            @foreach (var target in Model)
+                            {
+                                    <tr>
+                                        <td><strong>@target.TargetCode</strong></td>
+                                        <td>
+                                            <i class="bi bi-@(target.TargetTypeNavigation?.Name == "Aircraft" ? "airplane" : target.TargetTypeNavigation?.Name == "Missile" ? "rocket" : target.TargetTypeNavigation?.Name == "Drone" ? "cpu" : "hurricane") me-1"></i>
+                                            @target.TargetTypeNavigation?.Name
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-@(target.ClassificationNavigation?.Name == "Hostile" ? "danger" : target.ClassificationNavigation?.Name == "Friendly" ? "success" : "warning text-dark")">
+                                                @target.ClassificationNavigation?.Name
+                                            </span>
+                                        </td>
+                                        <td>X: @target.PositionX.ToString("F1"), Y: @target.PositionY.ToString("F1")</td>
+                                        <td>@target.Speed km/h</td>
+                                        <td>@target.Altitude ft</td>
+                                        <td>
+                                            <span class="badge bg-@(target.IsActive == 1 ? "success" : "secondary")">
+                                                @(target.IsActive == 1 ? "Active" : "Inactive")
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@target.TargetId" class="btn btn-sm btn-outline-info" title="Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@target.TargetId" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@target.TargetId" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                            }
+                    }
+                    else
+                    {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 40px;"></i>
+                                    <p class="mb-0 mt-2">No targets found</p>
+                                </td>
+                            </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

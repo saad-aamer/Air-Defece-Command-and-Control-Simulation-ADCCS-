@@ -1,0 +1,205 @@
+@model ADCCS_Web.Models.Target
+@{
+    ViewData["Title"] = "Target Details";
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-crosshair me-2"></i>Target: @Model.TargetCode
+                </h5>
+                <span class="badge bg-@(Model.ClassificationNavigation?.Name == "Hostile" ? "danger" : Model.ClassificationNavigation?.Name == "Friendly" ? "success" : "warning") fs-6">
+                    @Model.ClassificationNavigation?.Name
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 40%;">Target Code</th>
+                                <td><strong>@Model.TargetCode</strong></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Type</th>
+                                <td>
+                                    <i class="bi bi-@(Model.TargetTypeNavigation?.Name == "Aircraft" ? "airplane" : Model.TargetTypeNavigation?.Name == "Missile" ? "rocket" : Model.TargetTypeNavigation?.Name == "Drone" ? "cpu" : "hurricane") me-1"></i>
+                                    @Model.TargetTypeNavigation?.Name
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Classification</th>
+                                <td>
+                                    <span class="badge bg-@(Model.ClassificationNavigation?.Name == "Hostile" ? "danger" : Model.ClassificationNavigation?.Name == "Friendly" ? "success" : "warning text-dark")">
+                                        @Model.ClassificationNavigation?.Name
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Status</th>
+                                <td>
+                                    <span class="badge bg-@(Model.IsActive == 1 ? "success" : "secondary")">
+                                        @(Model.IsActive == 1 ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th class="text-muted" style="width: 40%;">Position</th>
+                                <td>X: @Model.PositionX.ToString("F1"), Y: @Model.PositionY.ToString("F1")</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Speed</th>
+                                <td>@Model.Speed km/h</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Altitude</th>
+                                <td>@Model.Altitude ft</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Heading</th>
+                                <td>@Model.Heading°</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="text-muted mb-1">Detected At</p>
+                        <p>@Model.DetectedAt</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="text-muted mb-1">Detected By</p>
+                        <p>@(Model.DetectedByNavigation?.Username ?? "System")</p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a asp-action="Edit" asp-route-id="@Model.TargetId" class="btn btn-primary">
+                        <i class="bi bi-pencil me-1"></i> Edit
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.TargetId" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Defensive Actions for this Target -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Defensive Actions</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Action Type</th>
+                                <th>Status</th>
+                                <th>Issued By</th>
+                                <th>Issued At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.DefensiveActions != null && Model.DefensiveActions.Any())
+                            {
+                                @foreach (var action in Model.DefensiveActions)
+                                {
+                                    <tr>
+                                        <td>@action.ActionTypeNavigation?.Name</td>
+                                        <td>
+                                            <span class="badge bg-@(action.StatusNavigation?.Name == "Completed" ? "success" : action.StatusNavigation?.Name == "Pending" ? "warning text-dark" : action.StatusNavigation?.Name == "In Progress" ? "info" : "secondary")">
+                                                @action.StatusNavigation?.Name
+                                            </span>
+                                        </td>
+                                        <td>@action.IssuedByNavigation?.Username</td>
+                                        <td>@action.IssuedAt</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-3">No actions issued</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Side Panel -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        @if (Context.Session.GetString("Role") == "Commander" || Context.Session.GetString("Role") == "Admin")
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge me-2"></i>Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">Issue defensive action for this target:</p>
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Actions" asp-action="Create" asp-route-targetId="@Model.TargetId" class="btn btn-primary">
+                            <i class="bi bi-airplane me-1"></i> Scramble Jet
+                        </a>
+                        <a asp-controller="Actions" asp-action="Create" asp-route-targetId="@Model.TargetId" class="btn btn-danger">
+                            <i class="bi bi-rocket me-1"></i> Launch SAM
+                        </a>
+                        <a asp-controller="Actions" asp-action="Create" asp-route-targetId="@Model.TargetId" class="btn btn-secondary">
+                            <i class="bi bi-eye me-1"></i> Track Only
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Threat Alerts -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Threat Alerts</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @if (Model.ThreatAlerts != null && Model.ThreatAlerts.Any())
+                    {
+                        @foreach (var alert in Model.ThreatAlerts.OrderByDescending(a => a.AlertId).Take(5))
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <span class="badge bg-@(alert.AlertLevelNavigation?.Name == "Critical" ? "danger" : alert.AlertLevelNavigation?.Name == "High" ? "warning text-dark" : "secondary")">
+                                        @alert.AlertLevelNavigation?.Name
+                                    </span>
+                                    <small class="text-muted">
+                                        @(alert.IsAcknowledged == 1 ? "Acknowledged" : "Active")
+                                    </small>
+                                </div>
+                                <p class="mb-0 small mt-1">@alert.Message</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="list-group-item text-center text-muted py-3">
+                            No alerts for this target
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

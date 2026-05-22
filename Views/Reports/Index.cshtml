@@ -1,0 +1,341 @@
+@model ADCCS_Web.Models.ViewModels.ReportViewModel
+@{
+    ViewData["Title"] = "Mission Reports";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0">Mission Reports</h4>
+        <small class="text-muted">Overview of all mission statistics and data</small>
+    </div>
+    <a asp-action="MissionReport" class="btn btn-primary">
+        <i class="bi bi-file-earmark-pdf me-2"></i>Generate Report
+    </a>
+</div>
+
+<!-- Summary Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-body">
+                <i class="bi bi-crosshair" style="font-size: 40px; color: #34e6b8;"></i>
+                <h2 class="mt-2 mb-0" style="color: #cffef3;">@Model.TotalTargetsDetected</h2>
+                <p class="mb-0" style="color: #9bd9c6;">Total Targets</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-body">
+                <i class="bi bi-exclamation-triangle" style="font-size: 40px; color: #ff4757;"></i>
+                <h2 class="mt-2 mb-0" style="color: #cffef3;">@Model.HostileEngagements</h2>
+                <p class="mb-0" style="color: #9bd9c6;">Hostile Engagements</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-body">
+                <i class="bi bi-lightning" style="font-size: 40px; color: #ffa502;"></i>
+                <h2 class="mt-2 mb-0" style="color: #cffef3;">@Model.ActionsIssued</h2>
+                <p class="mb-0" style="color: #9bd9c6;">Actions Issued</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm text-center" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-body">
+                <i class="bi bi-bell" style="font-size: 40px; color: #1e90ff;"></i>
+                <h2 class="mt-2 mb-0" style="color: #cffef3;">@Model.AlertsGenerated</h2>
+                <p class="mb-0" style="color: #9bd9c6;">Alerts Generated</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-pie-chart me-2"></i>Targets by Type
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="targetsByTypeChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-pie-chart me-2"></i>Targets by Classification
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="targetsByClassChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-bar-chart me-2"></i>Actions by Type
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="actionsByTypeChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100" style="background: #0a0a0a; border: 1px solid #111111;">
+            <div class="card-header" style="background: #020202; border-bottom: 1px solid #111111;">
+                <h5 class="mb-0" style="color: #34e6b8; font-size: 14px; font-weight: 600;">
+                    <i class="bi bi-bar-chart me-2"></i>Alerts by Level
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="alertsByLevelChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Theme colors
+        const themeColors = {
+            primary: '#34e6b8',     // Emerald green
+            secondary: '#9bd9c6',   // Muted green
+            success: '#34e6b8',     // Emerald green
+            info: '#1e90ff',        // Blue
+            warning: '#ffa502',     // Orange
+            danger: '#ff4757',      // Red
+            dark: '#111111',
+            light: '#cffef3'
+        };
+
+        // Chart colors that complement the theme
+        const chartColors = {
+            emerald: ['#34e6b8', '#1f9f82', '#66cfa3', '#8de8d0', '#0f6f5c'],
+            red: ['#ff4757', '#ff6b81', '#ff3742', '#ff8fa3', '#d63031'],
+            blue: ['#1e90ff', '#63a4ff', '#3742fa', '#70a1ff', '#0a3d62'],
+            orange: ['#ffa502', '#ffbe76', '#ff9f1a', '#ffd32a', '#cc8e00'],
+            purple: ['#a29bfe', '#6c5ce7', '#fd79a8', '#e84393', '#833471'],
+            gray: ['#636e72', '#b2bec3', '#dfe6e9', '#2d3436', '#0984e3']
+        };
+
+        // Targets by Type Chart - Emerald theme colors
+        new Chart(document.getElementById('targetsByTypeChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.TargetsByType.Select(t => $"'{t.Label}'")))],
+                datasets: [{
+                    data: [@string.Join(",", Model.TargetsByType.Select(t => t.Value))],
+                    backgroundColor: chartColors.emerald,
+                    borderColor: '#111111',
+                    borderWidth: 1,
+                    hoverBorderWidth: 2,
+                    hoverBorderColor: themeColors.light
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: themeColors.light,
+                            font: { size: 11 },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#020202',
+                        titleColor: themeColors.light,
+                        bodyColor: themeColors.secondary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Targets by Classification Chart - Theme colors for classification types
+        new Chart(document.getElementById('targetsByClassChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.TargetsByClassification.Select(t => $"'{t.Label}'")))],
+                datasets: [{
+                    data: [@string.Join(",", Model.TargetsByClassification.Select(t => t.Value))],
+                    backgroundColor: [
+                        themeColors.danger,    // Hostile - Red
+                        themeColors.success,   // Friendly - Emerald
+                        themeColors.info       // Unknown - Blue
+                    ],
+                    borderColor: '#111111',
+                    borderWidth: 1,
+                    hoverBorderWidth: 2,
+                    hoverBorderColor: themeColors.light
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: themeColors.light,
+                            font: { size: 11 },
+                            padding: 15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#020202',
+                        titleColor: themeColors.light,
+                        bodyColor: themeColors.secondary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Actions by Type Chart - Emerald gradient bars
+        new Chart(document.getElementById('actionsByTypeChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.ActionsByType.Select(t => $"'{t.Label}'")))],
+                datasets: [{
+                    label: 'Count',
+                    data: [@string.Join(",", Model.ActionsByType.Select(t => t.Value))],
+                    backgroundColor: chartColors.emerald,
+                    borderColor: '#111111',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    hoverBackgroundColor: themeColors.light,
+                    hoverBorderColor: themeColors.primary
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#020202',
+                        titleColor: themeColors.light,
+                        bodyColor: themeColors.secondary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: themeColors.secondary,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: '#111111',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: themeColors.secondary,
+                            font: { size: 11 },
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: '#111111',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Alerts by Level Chart - Theme colors for alert levels
+        new Chart(document.getElementById('alertsByLevelChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", Model.AlertsByLevel.Select(t => $"'{t.Label}'")))],
+                datasets: [{
+                    label: 'Count',
+                    data: [@string.Join(",", Model.AlertsByLevel.Select(t => t.Value))],
+                    backgroundColor: [
+                        themeColors.danger,    // Critical - Red
+                        themeColors.warning,   // High - Orange
+                        themeColors.info,      // Medium - Blue
+                        themeColors.success    // Low - Emerald
+                    ],
+                    borderColor: '#111111',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    hoverBackgroundColor: themeColors.light,
+                    hoverBorderColor: themeColors.primary
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#020202',
+                        titleColor: themeColors.light,
+                        bodyColor: themeColors.secondary,
+                        borderColor: themeColors.primary,
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: themeColors.secondary,
+                            font: { size: 11 }
+                        },
+                        grid: {
+                            color: '#111111',
+                            drawBorder: false
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: themeColors.secondary,
+                            font: { size: 11 },
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: '#111111',
+                            drawBorder: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Apply dark theme to all charts
+        Chart.defaults.color = themeColors.secondary;
+        Chart.defaults.borderColor = '#111111';
+
+        // Style chart canvases
+        document.querySelectorAll('canvas').forEach(canvas => {
+            canvas.style.backgroundColor = '#000000';
+        });
+    </script>
+}

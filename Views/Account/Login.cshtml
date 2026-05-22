@@ -1,0 +1,267 @@
+@model ADCCS_Web.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Air Defence C2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <script type="module" src="https://cdn.skypack.dev/@@hotwired/turbo"></script>
+
+
+    <style>
+        /* Login page specific styles */
+        .login-bg {
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: #000000; /* Pure black */
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 40px 35px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .radar-icon {
+            font-size: 48px;
+            color: #34e6b8;
+            margin-bottom: 20px;
+        }
+
+        .login-header h2 {
+            color: #cffef3;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .login-header p {
+            color: #9bd9c6;
+            font-size: 13px;
+            margin-bottom: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .login-body {
+            width: 100%;
+        }
+
+        /* Centered form with reduced width */
+        form {
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        /* Smaller form controls */
+        .form-control-lg {
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Form labels */
+        .form-label {
+            color: #9bd9c6 !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            margin-bottom: 8px !important;
+            letter-spacing: 0.5px !important;
+        }
+
+        /* Form inputs */
+        .form-control {
+            background: #050505 !important; /* Darker than background */
+            border: 1px solid #111111 !important;
+            color: #cffef3 !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+        }
+
+            .form-control:focus {
+                border-color: #34e6b8 !important;
+                background: #020202 !important;
+                box-shadow: 0 0 0 3px rgba(52, 230, 184, 0.1) !important;
+            }
+
+            .form-control::placeholder {
+                color: #376a5b !important;
+            }
+
+        /* Login button */
+        .btn-login {
+            background: transparent !important;
+            border: 1px solid #34e6b8 !important;
+            color: #34e6b8 !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.8px !important;
+            padding: 12px !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease !important;
+            text-transform: uppercase !important;
+            font-size: 13px !important;
+        }
+
+            .btn-login:hover {
+                background: rgba(52, 230, 184, 0.1) !important;
+                color: #cffef3 !important;
+                transform: translateY(-1px);
+                box-shadow: 0 5px 15px rgba(52, 230, 184, 0.2);
+            }
+
+        /* Alert styling */
+        .alert-danger {
+            background: rgba(255, 71, 87, 0.1) !important;
+            border: 1px solid #ff4757 !important;
+            color: #ff6b81 !important;
+            border-radius: 8px !important;
+            max-width: 320px;
+            margin: 0 auto 25px auto !important;
+        }
+
+        /* Credentials box - centered, no border */
+        .credentials-box {
+            background: rgba(52, 230, 184, 0.05);
+            border: none; /* Removed border */
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+            .credentials-box h6 {
+                color: #34e6b8;
+                font-size: 13px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                margin-bottom: 12px;
+            }
+
+            .credentials-box small {
+                color: #9bd9c6;
+                font-size: 12px;
+                line-height: 1.6;
+            }
+
+            .credentials-box strong {
+                color: #cffef3;
+                font-weight: 600;
+            }
+
+        /* Validation error text */
+        .text-danger {
+            color: #ff4757 !important;
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+                max-width: 340px;
+            }
+
+            form {
+                max-width: 280px;
+            }
+
+            .credentials-box {
+                max-width: 280px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="login-bg">
+
+
+    <div class="login-card">
+        <div class="login-header">
+            <img src="~/sherdilsLogo.png" alt="Sherdils Logo" style="height: 80px; width: auto; object-fit: contain; margin-bottom: 20px;" />
+            <h2>SHERDILS</h2>
+            <p>Air Defence Command & Control System</p>
+        </div>
+
+        <div class="login-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert" style="background: rgba(52, 230, 184, 0.1); border: 1px solid #34e6b8; color: #34e6b8; border-radius: 8px; max-width: 320px; margin: 0 auto 25px auto;">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" style="filter: invert(1) grayscale(100%) brightness(200%);"></button>
+                </div>
+            }
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <form asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Username" class="form-label fw-semibold">
+                        <i class="bi bi-person-fill me-1"></i> Username
+                    </label>
+                    <input asp-for="Username" class="form-control form-control-lg" placeholder="Enter username" autofocus />
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Password" class="form-label fw-semibold">
+                        <i class="bi bi-lock-fill me-1"></i> Password
+                    </label>
+                    <input asp-for="Password" class="form-control form-control-lg" placeholder="Enter password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-login btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                    </button>
+                </div>
+            </form>
+
+            <div class="credentials-box">
+                <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i> Test Credentials</h6>
+                <small class="d-block text-muted">
+                    <strong>Admin:</strong> admin / Admin@123<br>
+                    <strong>Operator:</strong> operator1 / Admin@123<br>
+                    <strong>Commander:</strong> commander1 / Admin@123
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

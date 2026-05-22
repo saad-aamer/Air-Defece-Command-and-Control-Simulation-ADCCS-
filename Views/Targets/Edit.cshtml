@@ -1,0 +1,90 @@
+@model ADCCS_Web.Models.Target
+@{
+    ViewData["Title"] = "Edit Target";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Edit Target: @Model.TargetCode</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="TargetId" />
+                    <input type="hidden" asp-for="DetectedAt" />
+                    <input type="hidden" asp-for="DetectedBy" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TargetCode" class="form-label">Target Code *</label>
+                            <input asp-for="TargetCode" class="form-control" required />
+                            <span asp-validation-for="TargetCode" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="TargetTypeId" class="form-label">Target Type *</label>
+                            <select asp-for="TargetTypeId" class="form-select" required>
+                                <option value="Aircraft">Aircraft</option>
+                                <option value="Missile">Missile</option>
+                                <option value="Drone">Drone</option>
+                                <option value="Helicopter">Helicopter</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ClassificationId" class="form-label">Classification *</label>
+                            <select asp-for="ClassificationId" class="form-select" required>
+                                <option value="Unknown">Unknown</option>
+                                <option value="Friendly">Friendly</option>
+                                <option value="Hostile">Hostile</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Heading" class="form-label">Heading (degrees)</label>
+                            <input asp-for="Heading" type="number" class="form-control" min="0" max="360" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PositionX" class="form-label">Position X</label>
+                            <input asp-for="PositionX" type="number" step="0.1" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PositionY" class="form-label">Position Y</label>
+                            <input asp-for="PositionY" type="number" step="0.1" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Speed" class="form-label">Speed (km/h)</label>
+                            <input asp-for="Speed" type="number" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Altitude" class="form-label">Altitude (ft)</label>
+                            <input asp-for="Altitude" type="number" class="form-control" />
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="IsActive" class="form-label">Status</label>
+                            <select asp-for="IsActive" class="form-select">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

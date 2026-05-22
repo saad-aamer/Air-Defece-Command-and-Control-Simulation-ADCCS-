@@ -1,0 +1,195 @@
+@{
+    ViewData["Title"] = "Issue Defensive Action";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Issue Defensive Action</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label">Target *</label>
+                        <select name="TargetId" class="form-select" required>
+                            <option value="">-- Select Target --</option>
+                            @if (ViewBag.TargetsList != null)
+                            {
+                                @foreach (var item in (SelectList)ViewBag.TargetsList)
+                                {
+                                    <option value="@item.Value" selected="@(item.Value == ViewBag.SelectedTargetId?.ToString())">@item.Text</option>
+                                }
+                            }
+                        </select>
+                        <small class="text-muted">Only hostile and unknown targets are shown</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Action Type *</label>
+                        <div class="row g-3">
+                            @{
+                                var actionTypes = ViewBag.ActionTypes as List<ADCCS_Web.Models.ActionType> ?? new List<ADCCS_Web.Models.ActionType>();
+                                var scrambleId = actionTypes.FirstOrDefault(a => a.Name == "Scramble Jet")?.ActionTypeId ?? 1;
+                                var samId = actionTypes.FirstOrDefault(a => a.Name == "Launch SAM")?.ActionTypeId ?? 2;
+                                var interceptorId = actionTypes.FirstOrDefault(a => a.Name == "Deploy Interceptor")?.ActionTypeId ?? 3;
+                                var trackId = actionTypes.FirstOrDefault(a => a.Name == "Track Only")?.ActionTypeId ?? 4;
+                            }
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="ActionTypeId" id="scramble" value="@scrambleId" required>
+                                <label class="btn btn-outline-primary w-100 py-3" for="scramble">
+                                    <i class="bi bi-airplane d-block" style="font-size: 30px;"></i>
+                                    Scramble Jet
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="ActionTypeId" id="sam" value="@samId">
+                                <label class="btn btn-outline-danger w-100 py-3" for="sam">
+                                    <i class="bi bi-rocket d-block" style="font-size: 30px;"></i>
+                                    Launch SAM
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="ActionTypeId" id="interceptor" value="@interceptorId">
+                                <label class="btn btn-outline-warning w-100 py-3" for="interceptor">
+                                    <i class="bi bi-robot d-block" style="font-size: 30px;"></i>
+                                    Deploy Interceptor
+                                </label>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="radio" class="btn-check" name="ActionTypeId" id="track" value="@trackId">
+                                <label class="btn btn-outline-secondary w-100 py-3" for="track">
+                                    <i class="bi bi-eye d-block" style="font-size: 30px;"></i>
+                                    Track Only
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3" id="assetSelectionDiv" style="display: none;">
+                        <label class="form-label">Select Asset *</label>
+                        <select name="AssetId" id="AssetId" class="form-select">
+                            <option value="">-- Select Asset --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea name="Notes" class="form-control" rows="3" placeholder="Add any additional notes..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-lightning me-1"></i> Issue Action
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const targets = @Html.Raw(ViewBag.TargetsJson ?? "[]");
+        const assets = @Html.Raw(ViewBag.AssetsJson ?? "[]");
+        const targetSelect = document.querySelector('select[name="TargetId"]');
+        const actionRadios = document.querySelectorAll('input[name="ActionTypeId"]');
+        const assetSelect = document.getElementById('AssetId');
+        const assetSelectionDiv = document.getElementById('assetSelectionDiv');
+
+        function updateForm() {
+            const targetId = parseInt(targetSelect.value);
+            const target = targets.find(t => t.TargetId === targetId);
+            
+            // Reset actions
+            actionRadios.forEach(radio => {
+                radio.disabled = true;
+                radio.checked = false;
+                radio.parentElement.style.opacity = '0.5';
+            });
+            assetSelectionDiv.style.display = 'none';
+            assetSelect.innerHTML = '<option value="">-- Select Asset --</option>';
+
+            if (!target) return;
+
+            const tType = target.TargetTypeName;
+            let allowedActionNames = ['Track Only'];
+            let allowedAssetTypes = [];
+
+            if (tType === 'Aircraft') {
+                allowedActionNames.push('Scramble Jet', 'Launch SAM');
+                allowedAssetTypes = ['Aircraft', 'Missile'];
+            } else if (tType === 'Drone') {
+                allowedActionNames.push('Launch SAM', 'Deploy Interceptor');
+                allowedAssetTypes = ['Missile', 'Drone'];
+            } else if (tType === 'Helicopter') {
+                allowedActionNames.push('Launch SAM', 'Deploy Interceptor');
+                allowedAssetTypes = ['Helicopter', 'Missile', 'Drone'];
+            } else if (tType === 'Missile') {
+                allowedActionNames.push('Launch SAM');
+                allowedAssetTypes = ['Missile'];
+            }
+
+            // Enable valid actions
+            actionRadios.forEach(radio => {
+                const labelName = radio.nextElementSibling.textContent.trim();
+                if (allowedActionNames.includes(labelName)) {
+                    radio.disabled = false;
+                    radio.parentElement.style.opacity = '1';
+                }
+            });
+
+            // Populate assets
+            const validAssets = assets.filter(a => allowedAssetTypes.includes(a.AssetTypeName));
+            if (validAssets.length > 0) {
+                validAssets.forEach(a => {
+                    const option = document.createElement('option');
+                    option.value = a.AssetId;
+                    option.textContent = `${a.AssetName} (${a.AssetTypeName})`;
+                    assetSelect.appendChild(option);
+                });
+            }
+        }
+
+        targetSelect.addEventListener('change', updateForm);
+        
+        actionRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const labelName = e.target.nextElementSibling.textContent.trim();
+                if (labelName === 'Track Only') {
+                    assetSelectionDiv.style.display = 'none';
+                    assetSelect.removeAttribute('required');
+                } else {
+                    assetSelectionDiv.style.display = 'block';
+                    assetSelect.setAttribute('required', 'required');
+                    
+                    // Further filter assets based on action type if necessary
+                    const options = Array.from(assetSelect.options);
+                    options.forEach(opt => {
+                        if(opt.value === "") return;
+                        opt.style.display = 'block'; // reset
+                        if(labelName === 'Scramble Jet' && !opt.textContent.includes('Aircraft')) {
+                            opt.style.display = 'none';
+                            if(assetSelect.value === opt.value) assetSelect.value = "";
+                        }
+                        if(labelName === 'Launch SAM' && !opt.textContent.includes('Missile')) {
+                            opt.style.display = 'none';
+                            if(assetSelect.value === opt.value) assetSelect.value = "";
+                        }
+                        if(labelName === 'Deploy Interceptor' && !opt.textContent.includes('Drone') && !opt.textContent.includes('Helicopter')) {
+                            opt.style.display = 'none';
+                            if(assetSelect.value === opt.value) assetSelect.value = "";
+                        }
+                    });
+                }
+            });
+        });
+
+        // Init
+        updateForm();
+    </script>
+}

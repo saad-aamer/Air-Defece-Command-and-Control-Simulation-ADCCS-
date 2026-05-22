@@ -1,0 +1,89 @@
+@model ADCCS_Web.Models.RadarConfiguration
+@{
+    ViewData["Title"] = "System Configuration";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Radar Configuration</h5>
+            </div>
+            <div class="card-body">
+                @if (Model != null)
+                
+{
+                    <form asp-action="Configuration" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="ConfigId" />
+                        <input type="hidden" asp-for="IsActive" />
+
+                        <div class="mb-3">
+                            <label asp-for="ConfigName" class="form-label">Configuration Name</label>
+                            <input asp-for="ConfigName" class="form-control" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="RadarRange" class="form-label">Radar Range (km)</label>
+                                <input asp-for="RadarRange" type="number" step="0.1" class="form-control" />
+                                <small class="text-muted">Maximum detection range for radar</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ScanInterval" class="form-label">Scan Interval (ms)</label>
+                                <input asp-for="ScanInterval" type="number" class="form-control" />
+                                <small class="text-muted">Time between radar sweeps in milliseconds</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="MaxTargets" class="form-label">Maximum Targets</label>
+                                <input asp-for="MaxTargets" type="number" class="form-control" />
+                                <small class="text-muted">Maximum number of simultaneous targets</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="AlertThreshold" class="form-label">Alert Threshold (km)</label>
+                                <input asp-for="AlertThreshold" type="number" step="0.1" class="form-control" />
+                                <small class="text-muted">Distance at which alerts are triggered</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Auto Classification</label>
+                            <div class="form-check form-switch">
+                                <input asp-for="AutoClassification" type="checkbox" class="form-check-input" value="1" />
+                                <label class="form-check-label">Enable automatic target classification</label>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="row text-muted small">
+                            <div class="col-md-6">
+                                <p><strong>Last Updated:</strong> @Model.UpdatedAt</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Configuration ID:</strong> @Model.ConfigId</p>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i> Save Configuration
+                            </button>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        No configuration found. Please contact system administrator.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
